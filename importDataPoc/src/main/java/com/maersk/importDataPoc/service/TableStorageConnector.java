@@ -2,6 +2,8 @@ package com.maersk.importDataPoc.service;
 
 import com.azure.data.tables.TableClient;
 import com.azure.data.tables.TableClientBuilder;
+import com.azure.data.tables.TableServiceClient;
+import com.azure.data.tables.TableServiceClientBuilder;
 import com.azure.data.tables.models.TableEntity;
 import com.azure.data.tables.models.TableTransactionAction;
 import com.azure.data.tables.models.TableTransactionActionType;
@@ -10,10 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class TableStorageConnector {
@@ -110,6 +109,18 @@ public class TableStorageConnector {
     }
 
 
+    public void addEntityList(List<Map<String, Object>> excelRowList, String tableName, String partitionKey){
+
+        // Create a TableClient with a connection string and a table name.
+        TableClient tableClient = tableClientConnection.getTableClient(tableName);
+        List<TableTransactionAction> tableTransactionActions = new ArrayList<>();
+        excelRowList.forEach(ex -> tableTransactionActions.add(
+                new TableTransactionAction(TableTransactionActionType.UPSERT_MERGE,
+                        new TableEntity(partitionKey, UUID.randomUUID().toString()).setProperties(ex))));
+
+        tableClient.submitTransaction(tableTransactionActions);
+    }
+
     public void addEntityList(List<Map<String, Object>> excelRowList){
         final String tableName = "ImportData";
         String partitionKey = "LastName";
@@ -119,8 +130,9 @@ public class TableStorageConnector {
         List<TableTransactionAction> tableTransactionActions = new ArrayList<>();
         excelRowList.forEach(ex -> tableTransactionActions.add(
                 new TableTransactionAction(TableTransactionActionType.UPSERT_MERGE,
-                        new TableEntity(partitionKey, (rowKey++)+"").setProperties(ex))));
+                        new TableEntity(partitionKey, UUID.randomUUID().toString()).setProperties(ex))));
 
         tableClient.submitTransaction(tableTransactionActions);
     }
+
 }

@@ -2,6 +2,8 @@ package com.maersk.importDataPoc.factory;
 
 import com.azure.data.tables.TableClient;
 import com.azure.data.tables.TableClientBuilder;
+import com.azure.data.tables.TableServiceClient;
+import com.azure.data.tables.TableServiceClientBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
@@ -33,16 +35,34 @@ public class TableClientConnection {
 
 
     public TableClient getTableClient(String tableName) {
-        String connectionString = "DefaultEndpointsProtocol=" + defaultEndpointsProtocol + ";" +
-                "AccountName=" + accountName + ";" +
-                "AccountKey=" + accountKey + ";" +
-                "EndpointSuffix=" + endpointSuffix + ";";
         // Create a TableClient with a connection string and a table name.
         TableClient tableClient = new TableClientBuilder()
-                .connectionString(connectionString)
+                .connectionString(getConnectionString())
                 .tableName(tableName)
                 .buildClient();
         return tableClient;
 
+    }
+
+    private String getConnectionString() {
+        String connectionString = "DefaultEndpointsProtocol=" + defaultEndpointsProtocol + ";" +
+                "AccountName=" + accountName + ";" +
+                "AccountKey=" + accountKey + ";" +
+                "EndpointSuffix=" + endpointSuffix + ";";
+        return connectionString;
+    }
+
+    public TableClient getTableClientFromTableService(String tableName) {
+        return getTableServiceClient().createTableIfNotExists(tableName);
+    }
+
+    public TableServiceClient getTableServiceClient() {
+
+        // Create a TableServiceClient with a connection string.
+        TableServiceClient tableServiceClient = new TableServiceClientBuilder()
+                .connectionString(getConnectionString())
+                .buildClient();
+
+        return tableServiceClient;
     }
 }

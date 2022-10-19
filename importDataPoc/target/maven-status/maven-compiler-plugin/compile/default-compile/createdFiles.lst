@@ -1,0 +1,6 @@
+com/maersk/importDataPoc/factory/TableClientConnection.class
+com/maersk/importDataPoc/utilities/FileUtility.class
+com/maersk/importDataPoc/controller/ReadFileController.class
+com/maersk/importDataPoc/service/TableStorageConnector.class
+com/maersk/importDataPoc/ImportDataPocApplication.class
+com/maersk/importDataPoc/controller/TableStorageController.class
